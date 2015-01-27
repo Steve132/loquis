@@ -3,9 +3,9 @@
 #This is the loquis reference interpreter
 import inspect
 from collections import namedtuple
-import modules.std
 import os,os.path
 from functools import partial
+import importlib
 
 class Stack(object):
 	def __init__(self):
@@ -37,10 +37,12 @@ class Interpreter(object):
 		self.fillerstrings=fillerstrings
 		self.context=defaultcontext
 		self.stack=Stack()
+			#todo make the interpreter keep track of its token state for streaming execution
 		self.verbose=verbose
 		self.language='en'
 		self.context['stack']=self.stack.sdata
 		self.context['language']=language
+		self.context['interpreter']=self
 		#bootstrap the standard library using the import mechanism in the standard library
 		self.load_python_module('std')
 		self._find_modules()
@@ -49,10 +51,23 @@ class Interpreter(object):
 		p=self.parse(scripttext)
 		k=self.tokenize(p)
 		self.execute(k)
+
+	def load_module(self,modname):
+		self.load_python_module(modname)
 		
 	def load_python_module(self,modname):
-		self.stack.push(modname)
-		modules.std._import(self.context,self.stack)
+		lang=self.language
+	
+		m=importlib.import_module('modules.'+modname)
+		if('languages' in dir(m) and lang in m.languages):
+			importdict=m.languages[lang]
+		else:
+			importdict={}
+			#importdict={}
+			#for k,v in dir(m).items():
+			#	if(v.importdict[k]=v
+		for k,v in importdict.items():
+			self.context[k]=v
 
 	def load_loquis_module(self,modname):
 		try:
@@ -66,11 +81,12 @@ class Interpreter(object):
 		moduledir=os.path.join(thisdir,'modules')
 		for root, dirs, files in os.walk(moduledir):
 			for d in dirs:
-				self.load_module(d)
+				self.load_python_module(d)
 			for f in files:
 				se=os.path.splitext(f)
 				if(se[1]=='.py' and se[0] !='std'):
 					self.load_python_module(se[0])
+			
 	
 	def parse(self,text):
 		quotegroups=text.split('"')

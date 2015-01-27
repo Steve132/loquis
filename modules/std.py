@@ -1,5 +1,4 @@
 import loquis
-import importlib
 
 @loquis.command
 def get(key,obj):
@@ -26,19 +25,7 @@ def last(obj):
 	return[obj[0]]
 
 def _import(context,stack):		#TODO add filesystem stuff to the import list..#TODO add .lq imports.  #TODO add relative imports
-	lang=context['language']
-	modname=stack.pop()
-	
-	m=importlib.import_module('modules.'+modname)
-	if('languages' in dir(m) and lang in m.languages):
-		importdict=m.languages[lang]
-	else:
-		importdict={}
-		#importdict={}
-		#for k,v in dir(m).items():
-		#	if(v.importdict[k]=v
-	for k,v in importdict.items():
-		context[k]=v
+	context['interpreter'].import_module(stack.pop())
 
 #possibly concurrancy using python threads?  Basically spawn an interpreter with a shared context
 
