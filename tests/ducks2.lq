@@ -1,0 +1,3 @@
+ask "How many ducks?\n", then
+copy "ducks" where repeats is that
+then print element 3 of stack.

@@ -1,0 +1,3 @@
+copy "ducks" where repeats is ask "How many ducks?"
+then print stack.
+
