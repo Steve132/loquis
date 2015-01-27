@@ -25,7 +25,7 @@ def last(obj):
 	return[obj[0]]
 
 def _import(context,stack):		#TODO add filesystem stuff to the import list..#TODO add .lq imports.  #TODO add relative imports
-	context['interpreter'].import_module(stack.pop())
+	context['interpreter'].load_module(stack.pop())
 
 #possibly concurrancy using python threads?  Basically spawn an interpreter with a shared context
 

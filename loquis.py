@@ -43,7 +43,7 @@ class Interpreter(object):
 		self.context['stack']=self.stack.sdata
 		self.context['language']=language
 		self.context['interpreter']=self
-		#bootstrap the standard library using the import mechanism in the standard library
+		#load the standard library using the import mechanism
 		self.load_python_module('std')
 		self._find_modules()
 
@@ -53,7 +53,11 @@ class Interpreter(object):
 		self.execute(k)
 
 	def load_module(self,modname):
-		self.load_python_module(modname)
+		try:
+			self.load_python_module(modname) #check also current directory
+		except:
+			self.load_loquis_module(modname)
+		
 		
 	def load_python_module(self,modname):
 		lang=self.language
@@ -69,11 +73,12 @@ class Interpreter(object):
 		for k,v in importdict.items():
 			self.context[k]=v
 
-	def load_loquis_module(self,modname):
+	def load_loquis_module(self,modname,directory=""):
+		fn=os.path.join(directory,modname+'.lq')		
 		try:
-			t=open(modname).read()
+			t=open(fn).read()
 		except:
-			raise "Failure to open loquis module"+modname
+			raise Exception("Failure to open loquis module "+fn)
 		return self.run(t)
 
 	def _find_modules(self):
