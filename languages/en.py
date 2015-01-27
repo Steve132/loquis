@@ -1,14 +1,17 @@
-
-fillerwords="""
+import loquis
+from modules import std
+fillerstrings="""
 	so
-	in
 	to
-	of
-	and
 	do
+	my
+	is
+	of
+	in
+	and
+	it
+	that
 	the
 	!
-"""
-	
-
+""".split()
 

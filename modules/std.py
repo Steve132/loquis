@@ -1,4 +1,5 @@
 import loquis
+import importlib
 
 @loquis.command
 def get(key,obj):
@@ -12,8 +13,27 @@ def get(key,obj):
 def last(count,obj):
 	return [obj[-count:]]
 
-def _import(context,stack):		#add filesystem stuff to the import list
-	pass
+@loquis.command
+def first(count,obj):
+	return[obj[:count]]
+
+@loquis.command
+def top(obj):
+	return[obj[0]]
+
+def _import(context,stack):		#TODO add filesystem stuff to the import list
+	lang=context['language']
+	modname=stack.pop()
+	m=importlib.import_module('modules.'+modname)
+	if('languages' in dir(m) and lang in m.languages):
+		importdict=m.languages[lang]
+	else:
+		pass
+		#importdict={}
+		#for k,v in dir(m).items():
+		#	if(v.importdict[k]=v
+	for k,v in importdict.items():
+		context[k]=v
 
 @loquis.command
 def _user_string(query):
@@ -34,3 +54,16 @@ def length(val):
 def _print(val):
 	print(val)
 
+languages={'en':
+	{	'get':get, 
+		'element':get,
+		'last':last,
+		'first':first,
+		'top':top,
+		'where':where, 
+		'copy':copy,
+		'print':_print,
+		'ask':_user_string,
+		'import':_import,
+	}
+}
