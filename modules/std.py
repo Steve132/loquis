@@ -10,15 +10,19 @@ def get(key,obj):
 	return [obj[key]]
 
 @loquis.command
-def last(count,obj):
+def bottom(count,obj):
 	return [obj[-count:]]
 
 @loquis.command
-def first(count,obj):
+def top(count,obj):
 	return[obj[:count]]
 
 @loquis.command
-def top(obj):
+def first(obj):
+	return[obj[0]]
+
+@loquis.command
+def last(obj):
 	return[obj[0]]
 
 def _import(context,stack):		#TODO add filesystem stuff to the import list..#TODO add .lq imports.  #TODO add relative imports
@@ -35,6 +39,8 @@ def _import(context,stack):		#TODO add filesystem stuff to the import list..#TOD
 		#	if(v.importdict[k]=v
 	for k,v in importdict.items():
 		context[k]=v
+
+#possibly concurrancy using python threads?  Basically spawn an interpreter with a shared context
 
 @loquis.command
 def _user_string(query):
@@ -65,6 +71,7 @@ languages={'en':
 		'last':last,
 		'first':first,
 		'top':top,
+		'bottom':bottom,
 		'where':where, 
 		'copy':copy,
 		'print':_print,

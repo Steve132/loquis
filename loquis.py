@@ -156,7 +156,6 @@ class Interpreter(object):
 			i+=1
 
 
-
 #all loquis ops are defined to return a list...this is a decorator
 def command(f):
 	aspec=inspect.getargspec(f)
@@ -189,7 +188,7 @@ def command(f):
 if(__name__=="__main__"):
 	import languages.en as lang
 	import sys
-	interp=Interpreter(language='en',fillerstrings=lang.fillerstrings,defaultcontext={},verbose=True)
+	interp=Interpreter(language='en',fillerstrings=lang.fillerstrings,defaultcontext={},verbose=False)
 	if(len(sys.argv) > 1):
 		t=interp.load_loquis_module(sys.argv[1])
 	else:
