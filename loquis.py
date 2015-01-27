@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 #This is the loquis reference interpreter
 import inspect
 from collections import namedtuple
@@ -38,7 +40,7 @@ class Interpreter(object):
 		self.context['stack']=self.stack.sdata
 		self.context['language']=language
 		#bootstrap the standard library using the import mechanism in the standard library
-		load_module('std')
+		self.load_module('std')
 
 		
 	def load_module(self,modname):
