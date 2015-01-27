@@ -1,0 +1,27 @@
+
+
+"Get my map destination then email it to Steve"
+
+1) unnecessary word removal and translation (tokenize)
+
+GET 
+Map 
+"destination" 
+; 
+EMAIL 
+"Steve"
+
+2) Reverse Tokens between ';'
+
+"Destination" Map GET "Steve" EMAIL
+
+3) Execute on stack machine
+
+"Destination"		"Destination"
+Map			<Map Module> "Destination"
+GET			<result of get(Map,"Destination")>
+"Steve"			"Steve" <result of get(Map,"Destination")>
+EMAIL			<call email("Steve",R)...Success!>
+			<Success>
+
+"Ok, email successfully sent"
