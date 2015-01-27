@@ -21,14 +21,15 @@ def first(count,obj):
 def top(obj):
 	return[obj[0]]
 
-def _import(context,stack):		#TODO add filesystem stuff to the import list
+def _import(context,stack):		#TODO add filesystem stuff to the import list..#TODO add .lq imports.  #TODO add relative imports
 	lang=context['language']
 	modname=stack.pop()
+	
 	m=importlib.import_module('modules.'+modname)
 	if('languages' in dir(m) and lang in m.languages):
 		importdict=m.languages[lang]
 	else:
-		pass
+		importdict={}
 		#importdict={}
 		#for k,v in dir(m).items():
 		#	if(v.importdict[k]=v
@@ -38,6 +39,10 @@ def _import(context,stack):		#TODO add filesystem stuff to the import list
 @loquis.command
 def _user_string(query):
 	return [raw_input(query)]
+
+@loquis.command
+def add(a,b):
+	return [a+b]
 
 @loquis.command
 def where(key,value):
@@ -65,5 +70,6 @@ languages={'en':
 		'print':_print,
 		'ask':_user_string,
 		'import':_import,
+		'add':add
 	}
 }

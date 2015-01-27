@@ -3,7 +3,9 @@
 #This is the loquis reference interpreter
 import inspect
 from collections import namedtuple
-import modules.std 
+import modules.std
+import os,os.path
+from functools import partial
 
 class Stack(object):
 	def __init__(self):
@@ -40,12 +42,35 @@ class Interpreter(object):
 		self.context['stack']=self.stack.sdata
 		self.context['language']=language
 		#bootstrap the standard library using the import mechanism in the standard library
-		self.load_module('std')
+		self.load_python_module('std')
+		self._find_modules()
 
+	def run(self,scripttext):
+		p=self.parse(scripttext)
+		k=self.tokenize(p)
+		self.execute(k)
 		
-	def load_module(self,modname):
+	def load_python_module(self,modname):
 		self.stack.push(modname)
 		modules.std._import(self.context,self.stack)
+
+	def load_loquis_module(self,modname):
+		try:
+			t=open(modname).read()
+		except:
+			raise "Failure to open loquis module"+modname
+		return self.run(t)
+
+	def _find_modules(self):
+		thisdir=os.path.dirname(os.path.realpath(__file__))
+		moduledir=os.path.join(thisdir,'modules')
+		for root, dirs, files in os.walk(moduledir):
+			for d in dirs:
+				self.load_module(d)
+			for f in files:
+				se=os.path.splitext(f)
+				if(se[1]=='.py' and se[0] !='std'):
+					self.load_python_module(se[0])
 	
 	def parse(self,text):
 		quotegroups=text.split('"')
@@ -55,7 +80,7 @@ class Interpreter(object):
 			if(i % 2 == 1):
 				wordsout.append(g.format()) #TODO figure out control characters
 			else:
-				wl=reduce(lambda gr,rs: gr.replace(rs,' ; '),[';','.','then',','],g)
+				wl=reduce(lambda gr,rs: gr.replace(rs,' ; '),['\n',';','.','then',','],g)
 				#g=g.replace(';',' ; ')
 				#g=g.replace('.',' ; ')
 				#g=g.replace('then',' ; ');
@@ -70,24 +95,49 @@ class Interpreter(object):
 	
 		outw=[]
 		curst=[]
-		for w in validwords:
+		i=0
+		while(i<len(validwords)):
+			w=validwords[i]
+			if(w=='procedure'):
+				try:
+					psize=validwords[i:].index('end')
+				except:
+					raise "Error, no corresponding 'end' found for procedure!"
+				pname=validwords[i+1]
+				beginprocedure=i+2
+				endprocedure=i+psize
+				i+=psize+1
+				ptokens=self.tokenize(validwords[beginprocedure:endprocedure])
+				self.context[pname]=partial(self.execute,ptokens)
+				print(validwords,psize,pname,beginprocedure,endprocedure,i,ptokens)
+				continue
+				
+				
 			if(w==';'):
 				outw.extend(curst[::-1])
 				curst=[]
 			else:
 				curst.append(w)
+			i+=1
+
 		return outw
 	def _verbprint(self,s):
 		if(self.verbose):
 			print(s)
 
-	def execute(self,tokens):
-		context=self.context
-		stack=self.stack
-		#push all tokens on the stack.  Should we look them up contextually first? YES for parsing.  
+	def execute(self,tokens,context=None,stack=None):
+		if(not context):
+			context=self.context
+		if(not stack):
+			stack=self.stack
+		#push all tokens on the stack.  Should we look them up contextually first? YES for executing RPN this is REQUIRED 
 		#Should also figure out control flow stuff here...function definitions at least and looping...
-		for T in tokens:
+		i=0;
+		while(i<len(tokens)):
+			T=tokens[i]
+			
 			self._verbprint("Now processing"+T)
+			
 			if(T.lower() in context):
 				n=T.lower()
 				T=context[T.lower()]
@@ -103,6 +153,7 @@ class Interpreter(object):
 				stack.push(T)
 	
 			self._verbprint(stack)
+			i+=1
 
 
 
@@ -138,15 +189,17 @@ def command(f):
 if(__name__=="__main__"):
 	import languages.en as lang
 	import sys
-	interp=Interpreter(language='en',fillerstrings=lang.fillerstrings,defaultcontext={})
-	#tests
-	#t="Get my map destination then email it to Steve"
-	#t="copy ducks where repeats is 10, then print stack"
+	interp=Interpreter(language='en',fillerstrings=lang.fillerstrings,defaultcontext={},verbose=True)
 	if(len(sys.argv) > 1):
-		t=open(sys.argv[1]).read()
+		t=interp.load_loquis_module(sys.argv[1])
 	else:
-		t=raw_input()
-	p=interp.parse(t)
-	k=interp.tokenize(p)
-	interp.execute(k)
+		print("Loquis REPL mode: Type 'quit' to exit.")
+		quit=False;
+		while(not quit):
+			t=raw_input(":D>> ")
+			if(t=='quit'):
+				break
+			else:
+				interp.run(t)
+				
 	

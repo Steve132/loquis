@@ -1,0 +1,7 @@
+procedure youtube
+	add "YouTube: " ;
+	run firefox top of google;
+end
+
+youtube "Seven Nation Army"
+
