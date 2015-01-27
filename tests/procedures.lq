@@ -1,6 +1,6 @@
 procedure youtube
 	google add "YouTube: " to it, then
-	run firefox on the first
+	run firefox on the first of that
 end
 
 youtube "Seven Nation Army"
