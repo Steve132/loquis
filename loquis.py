@@ -48,9 +48,9 @@ class Interpreter(object):
 		self._find_modules()
 
 	def run(self,scripttext):
-		p=self.parse(scripttext)
-		k=self.tokenize(p)
-		self.execute(k)
+		k=self.tokenize(scripttext)
+		p=self.parse(k)
+		self.execute(p)
 
 	def load_module(self,modname):
 		try:
@@ -93,7 +93,7 @@ class Interpreter(object):
 					self.load_python_module(se[0])
 			
 	
-	def parse(self,text):
+	def tokenize(self,text):
 		quotegroups=text.split('"')
 		wordsout=[]
 		for i in range(len(quotegroups)):
@@ -111,26 +111,28 @@ class Interpreter(object):
 		validwords=filter(lambda w: w not in self.fillerstrings,wordsout)
 		return validwords
 
-	def tokenize(self,validwords):
-		validwords.append(';')  #always has a semicolon for find.
+	def one_token(self,one):
+		pass
+
+	def parse(self,tokens):
+		tokens.append(';')  #always has a semicolon for find.
 	
 		outw=[]
 		curst=[]
 		i=0
-		while(i<len(validwords)):
-			w=validwords[i]
+		while(i<len(tokens)):
+			w=tokens[i]
 			if(w=='procedure'):
 				try:
-					psize=validwords[i:].index('end')
+					psize=tokens[i:].index('end')
 				except:
 					raise "Error, no corresponding 'end' found for procedure!"
-				pname=validwords[i+1]
+				pname=tokens[i+1]
 				beginprocedure=i+2
 				endprocedure=i+psize
 				i+=psize+1
-				ptokens=self.tokenize(validwords[beginprocedure:endprocedure])
+				ptokens=self.parse(tokens[beginprocedure:endprocedure])
 				self.context[pname]=partial(self.execute,ptokens)
-				print(validwords,psize,pname,beginprocedure,endprocedure,i,ptokens)
 				continue
 				
 				
@@ -142,6 +144,8 @@ class Interpreter(object):
 			i+=1
 
 		return outw
+
+
 	def _verbprint(self,s):
 		if(self.verbose):
 			print(s)
