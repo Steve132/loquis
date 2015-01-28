@@ -33,8 +33,7 @@ class Stack(object):
 
 Where=namedtuple('Where',['key','value'])
 class Interpreter(object):
-	def __init__(self,language='en',fillerstrings=[],defaultcontext={},verbose=False):
-		self.fillerstrings=fillerstrings
+	def __init__(self,language='en',defaultcontext={},verbose=False):
 		self.context=defaultcontext
 		self.stack=Stack()
 			#todo make the interpreter keep track of its token state for streaming execution
@@ -91,6 +90,8 @@ class Interpreter(object):
 				se=os.path.splitext(f)
 				if(se[1]=='.py' and se[0] !='std'):
 					self.load_python_module(se[0])
+				if(se[1]=='.lq'):
+					self.load_loquis_module(se[0],moduledir)
 			
 	
 	def tokenize(self,text):
@@ -107,8 +108,6 @@ class Interpreter(object):
 				#g=g.replace('then',' ; ');
 				#g=g.replace(',',' ; ');
 				wordsout.extend(wl.split())
-	
-		validwords=filter(lambda w: w not in self.fillerstrings,wordsout)
 		return validwords
 
 	def one_token(self,one):
@@ -194,7 +193,11 @@ def command(f):
 		na=0
 		cargs=[]
 		kwargs={}
-		while(len(stack) > 0 and na < len(args)):
+		while(na < len(args)):
+			while(len(stack) == 0):
+				stack.push("What is "+args[na]+"?")
+				context['_ask'](context,stack)
+
 			s=stack.pop()
 			if(isinstance(s,Where)):
 				kwargs[s.key]=s.value
@@ -211,9 +214,8 @@ def command(f):
 
 
 if(__name__=="__main__"):
-	import languages.en as lang
 	import sys
-	interp=Interpreter(language='en',fillerstrings=lang.fillerstrings,defaultcontext={},verbose=False)
+	interp=Interpreter(language='en',defaultcontext={},verbose=False)
 	if(len(sys.argv) > 1):
 		t=interp.load_loquis_module(sys.argv[1])
 	else:

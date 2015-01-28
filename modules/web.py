@@ -6,4 +6,8 @@ from google import search
 def google(query):
 	return [list(search(query,stop=10))]
 
+@loquis.command
+def wget(query):
+	return [urllib2.urlopen('http://python.org/').read()]
+
 languages={'en':{'google':google}}

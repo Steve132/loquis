@@ -52,6 +52,10 @@ def length(val):
 def _print(val):
 	print(val)
 
+@laquis.command
+def nop():
+	pass
+
 languages={'en':
 	{	'get':get, 
 		'element':get,
@@ -63,7 +67,20 @@ languages={'en':
 		'copy':copy,
 		'print':_print,
 		'ask':_user_string,
+		'_ask':_user_string,
 		'import':_import,
-		'add':add
+		'add':add,
+		'so':nop,
+		'to':nop,
+		'do':nop,
+		'my':nop,
+		'is':nop,
+		'of':nop,
+		'in':nop,
+		'on':nop,
+		'the':nop,
+		'result':copy,
+		'it':copy,
+		'that':copy
 	}
 }
