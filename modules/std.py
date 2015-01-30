@@ -79,8 +79,8 @@ languages={'en':
 		'in':nop,
 		'on':nop,
 		'the':nop,
-		'result':copy,
-		'it':copy,
-		'that':copy
+		'result':nop, #copy,
+		'it':nop, #copy,
+		'that':nop #copy
 	}
 }

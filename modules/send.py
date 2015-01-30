@@ -28,15 +28,18 @@ if(loquis.platform_type == 'Desktop'):
 	except Exception as e:
 		print(e)
 		print(__name__+": Can't use texting or sms on this machine without proper twillo auths in auth/twillo.py")
+else:
+	pass #use android implementation of texting
 
 try:
-	import auth.email
+	import auth.smtp
 	import smtplib
+	import email.MIMEMultipart,email.Utils,email.MIMEText
 
-	smtp_server_address=auth.email.smtp_server_address
-	smtp_server_port=auth.email.smtp_server_port
-	smtp_username=auth.email.smtp_username
-	smtp_password=auth.email.smtp_password
+	smtp_server_address=auth.smtp.smtp_server_address
+	smtp_server_port=auth.smtp.smtp_server_port
+	smtp_username=auth.smtp.smtp_username
+	smtp_password=auth.smtp.smtp_password
 
 	@loquis.command
 	def send_email(message,to,subject=None,cc=None):
@@ -51,15 +54,18 @@ try:
 			smtpserver.ehlo()
 			smtpserver.login(smtp_username, smtp_password)
 			from_addr=smtp_username
-			header  = 'From: %s\n' % from_addr
-			header += 'To: %s\n' % ','.join(to)
-			if(cc):
-				header += 'Cc: %s\n' % ','.join(cc)
-			if(subject):
-				header += 'Subject: %s\n\n' % subject
-			message = header + message
 
-			problems = smtpserver.sendmail(from_addr, to, message)
+			msg = email.MIMEMultipart.MIMEMultipart()
+			msg['From'] = from_addr
+			msg['To'] = email.Utils.COMMASPACE.join(to)
+			if(subject):
+				msg['Subject'] = subject
+			if(cc):
+				msg['Cc'] = email.Utils.COMMASPACE.join(cc)
+			
+			msg.attach(email.MIMEText.MIMEText(message))
+			msg.attach(email.MIMEText.MIMEText('\nsent via loquis', 'plain'))
+			problems=smtpserver.sendmail(from_addr,to,msg.as_string())
 			smtpserver.quit()
 		except Exception as e:
 			print(e)

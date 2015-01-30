@@ -173,7 +173,7 @@ class Interpreter(object):
 		while(i<len(tokens)):
 			T=tokens[i]
 			
-			self._verbprint("Now processing"+T)
+			self._verbprint("Now processing: "+T)
 			
 			if(T.lower() in context):
 				n=T.lower()

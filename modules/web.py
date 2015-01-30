@@ -8,6 +8,6 @@ def google(query):
 
 @loquis.command
 def wget(query):
-	return [urllib2.urlopen('http://python.org/').read()]
+	return [urllib2.urlopen(query).read()]
 
 languages={'en':{'google':google}}

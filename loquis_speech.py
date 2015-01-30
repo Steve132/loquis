@@ -56,8 +56,7 @@ def get_next_command(r,source):
 
 
 if(__name__=='__main__'):
-	import languages.en as lang
-	interp=loquis.Interpreter(language='en',fillerstrings=lang.fillerstrings,defaultcontext={},verbose=False)
+	interp=loquis.Interpreter(language='en',defaultcontext={},verbose=False)
 	r = sr.Recognizer()
 	with sr.Microphone() as source: # use the default microphone as the audio source
 		print("Loquis REPL mode: Say 'quit' to exit.")
