@@ -6,6 +6,16 @@ from collections import namedtuple
 import os,os.path
 from functools import partial
 import importlib
+from platform import system as sysname
+
+platform=sysname()
+platform_type=None
+if(platform in ['Linux','Windows','FreeBSD','MacOS']):
+	platform_type='Desktop'
+
+
+class LoquisException(Exception):
+	pass
 
 class Stack(object):
 	def __init__(self):
@@ -50,6 +60,9 @@ class Interpreter(object):
 		k=self.tokenize(scripttext)
 		p=self.parse(k)
 		self.execute(p)
+
+	def options(self,query,options=["Yes","No"]):
+		pass
 
 	def load_module(self,modname):
 		try:
@@ -108,7 +121,7 @@ class Interpreter(object):
 				#g=g.replace('then',' ; ');
 				#g=g.replace(',',' ; ');
 				wordsout.extend(wl.split())
-		return validwords
+		return wordsout
 
 	def one_token(self,one):
 		pass
@@ -168,11 +181,14 @@ class Interpreter(object):
 				self._verbprint("Assuming '"+n+"' means "+str(T))
 		
 			if(hasattr(T, '__call__')):
-				retval=T(context=context,stack=stack)
-				if(retval):
-					if(not isinstance(retval,list)):
-						retval=[retval]
-					stack.extend(retval)
+				try:
+					retval=T(context=context,stack=stack)
+					if(retval):
+						if(not isinstance(retval,list)):
+							retval=[retval]
+						stack.extend(retval)
+				except LoquisException as lq:
+					print(lq)
 			else:
 				stack.push(T)
 	
@@ -187,16 +203,22 @@ def command(f):
 	varargs=aspec[1]
 	kwargs=aspec[2]
 	defaults=aspec[3]	#todo: doesn't handle defaults I don't think
-	
+
 	def func(context,stack):
 		#todo: how greedy is kwargs?		
 		na=0
 		cargs=[]
 		kwargs={}
+		if(defaults):
+			ds=list(defaults)
+			ds=ds[::-1]
 		while(na < len(args)):
 			while(len(stack) == 0):
-				stack.push("What is "+args[na]+"?")
-				context['_ask'](context,stack)
+				if(len(ds)):
+					stack.push(ds.pop())
+				else:
+					stack.push("What is "+args[na]+"?")
+					context['_ask'](context,stack)
 
 			s=stack.pop()
 			if(isinstance(s,Where)):

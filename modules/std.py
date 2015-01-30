@@ -52,7 +52,7 @@ def length(val):
 def _print(val):
 	print(val)
 
-@laquis.command
+@loquis.command
 def nop():
 	pass
 
